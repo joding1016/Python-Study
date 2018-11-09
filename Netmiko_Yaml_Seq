@@ -1,0 +1,38 @@
+from netmiko import ConnectHandler
+import os
+import yaml
+
+
+current_dir = os.path.dirname(__file__)
+interface_path = os.path.join(current_dir, 'alc_n3k_004_interface.yaml')
+description_path = os.path.join(current_dir, 'alc_n3k_004_description.yaml')
+switch_path = os.path.join(current_dir, 'Switches_and_Routers.yaml')
+
+
+
+
+with open(interface_path, 'r') as f:
+    interface = yaml.load(f)
+with open(description_path, 'r') as g:
+    description = yaml.load(g)
+with open(switch_path, 'r') as h:
+    switch = yaml.load(h)
+
+
+n3k_004 = 'alc-n3k-004'
+
+cli = []
+
+for i in range(len(interface)):
+    cli.append(interface.pop(0))
+    cli.append(description.pop(0))
+
+print(f"Following is the cli will be applied: {cli}")
+
+decision = input(" Please confirm if you want to make the change now: [Y/N]   ")
+if decision.lower() == 'y' or decision.lower() == 'yes':
+    ssh = ConnectHandler(**switch[n3k_004])
+    output = ssh.send_config_set(cli)
+    print(output)
+else:
+    print("Mission abort")
